@@ -11,7 +11,7 @@
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import {
   ListToolsRequestSchema,
   CallToolRequestSchema,
@@ -46,49 +46,55 @@ for (const tool of workflowTools) toolHandlers[tool.name] = handleWorkflowTool;
 // Server setup
 // ---------------------------------------------------------------------------
 
-const server = new Server(
-  { name: 'openclaw-mcp', version: '1.0.0' },
-  { capabilities: { tools: {} } },
-);
+function createMcpServer(): Server {
+  const srv = new Server(
+    { name: 'openclaw-mcp', version: '1.0.0' },
+    { capabilities: { tools: {} } },
+  );
 
-server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools: allTools,
-}));
+  srv.setRequestHandler(ListToolsRequestSchema, async () => ({
+    tools: allTools,
+  }));
 
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
-  const { name, arguments: args } = request.params;
-  const handler = toolHandlers[name];
+  srv.setRequestHandler(CallToolRequestSchema, async (request) => {
+    const { name, arguments: args } = request.params;
+    const handler = toolHandlers[name];
 
-  if (!handler) {
-    return {
-      content: [{ type: 'text' as const, text: `Unknown tool: ${name}` }],
-      isError: true,
-    };
-  }
+    if (!handler) {
+      return {
+        content: [{ type: 'text' as const, text: `Unknown tool: ${name}` }],
+        isError: true,
+      };
+    }
 
-  try {
-    const result = await handler(name, (args || {}) as Record<string, unknown>);
-    return {
-      content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }],
-    };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    return {
-      content: [{ type: 'text' as const, text: `Error: ${message}` }],
-      isError: true,
-    };
-  }
-});
+    try {
+      const result = await handler(name, (args || {}) as Record<string, unknown>);
+      return {
+        content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return {
+        content: [{ type: 'text' as const, text: `Error: ${message}` }],
+        isError: true,
+      };
+    }
+  });
+
+  return srv;
+}
 
 // ---------------------------------------------------------------------------
-// Connect via stdio or SSE transport (MCPize uses SSE via PORT env)
+// Connect via stdio or Streamable HTTP transport
 // ---------------------------------------------------------------------------
 
 const PORT = process.env.PORT;
 
 if (PORT) {
-  // SSE mode for cloud hosting (MCPize, etc.)
-  const transports = new Map<string, SSEServerTransport>();
+  // Streamable HTTP mode for cloud hosting (MCPize, etc.)
+  const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: () => crypto.randomUUID() });
+  const server = createMcpServer();
+  await server.connect(transport);
 
   const httpServer = createServer(async (req, res) => {
     const url = new URL(req.url || '/', `http://localhost:${PORT}`);
@@ -99,23 +105,8 @@ if (PORT) {
       return;
     }
 
-    if (url.pathname === '/sse' && req.method === 'GET') {
-      const transport = new SSEServerTransport('/messages', res);
-      transports.set(transport.sessionId, transport);
-      transport.onclose = () => transports.delete(transport.sessionId);
-      await server.connect(transport);
-      return;
-    }
-
-    if (url.pathname === '/messages' && req.method === 'POST') {
-      const sessionId = url.searchParams.get('sessionId');
-      const transport = sessionId ? transports.get(sessionId) : undefined;
-      if (!transport) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Invalid or missing sessionId' }));
-        return;
-      }
-      await transport.handlePostMessage(req, res);
+    if (url.pathname === '/mcp') {
+      await transport.handleRequest(req, res);
       return;
     }
 
@@ -124,10 +115,11 @@ if (PORT) {
   });
 
   httpServer.listen(Number(PORT), '0.0.0.0', () => {
-    console.error(`OpenClaw MCP Server listening on port ${PORT} (SSE mode)`);
+    console.error(`OpenClaw MCP Server listening on port ${PORT} (Streamable HTTP at /mcp)`);
   });
 } else {
   // Stdio mode for local use (Claude Desktop, Cline, etc.)
+  const server = createMcpServer();
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }
