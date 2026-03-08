@@ -1,0 +1,55 @@
+{
+  "name": "@openclaw/mcp-server",
+  "version": "1.0.0",
+  "description": "OpenClaw MCP Server — AI agent orchestration, multi-agent pipelines, RAG knowledge retrieval, and business automation tools",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "openclaw-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ai-agents",
+    "orchestration",
+    "multi-agent",
+    "pipeline",
+    "rag",
+    "knowledge-base",
+    "n8n",
+    "workflow-automation",
+    "openclaw",
+    "lumina28"
+  ],
+  "author": "Lumina28 <hello@lumina28.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/lumina28/openclaw-mcp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lumina28/openclaw-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lumina28/openclaw-mcp/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.10.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.6.0"
+  }
+}
