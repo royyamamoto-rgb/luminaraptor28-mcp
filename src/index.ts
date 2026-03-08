@@ -11,10 +11,12 @@
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import {
   ListToolsRequestSchema,
   CallToolRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
+import { createServer } from 'http';
 
 import { orchestrationTools, handleOrchestrationTool } from './tools/orchestration.js';
 import { agentTools, handleAgentTool } from './tools/agents.js';
@@ -79,8 +81,53 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 });
 
 // ---------------------------------------------------------------------------
-// Connect via stdio transport
+// Connect via stdio or SSE transport (MCPize uses SSE via PORT env)
 // ---------------------------------------------------------------------------
 
-const transport = new StdioServerTransport();
-await server.connect(transport);
+const PORT = process.env.PORT;
+
+if (PORT) {
+  // SSE mode for cloud hosting (MCPize, etc.)
+  const transports = new Map<string, SSEServerTransport>();
+
+  const httpServer = createServer(async (req, res) => {
+    const url = new URL(req.url || '/', `http://localhost:${PORT}`);
+
+    if (url.pathname === '/health') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'ok', server: 'openclaw-mcp', version: '1.0.0' }));
+      return;
+    }
+
+    if (url.pathname === '/sse' && req.method === 'GET') {
+      const transport = new SSEServerTransport('/messages', res);
+      transports.set(transport.sessionId, transport);
+      transport.onclose = () => transports.delete(transport.sessionId);
+      await server.connect(transport);
+      return;
+    }
+
+    if (url.pathname === '/messages' && req.method === 'POST') {
+      const sessionId = url.searchParams.get('sessionId');
+      const transport = sessionId ? transports.get(sessionId) : undefined;
+      if (!transport) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Invalid or missing sessionId' }));
+        return;
+      }
+      await transport.handlePostMessage(req, res);
+      return;
+    }
+
+    res.writeHead(404);
+    res.end('Not found');
+  });
+
+  httpServer.listen(Number(PORT), '0.0.0.0', () => {
+    console.error(`OpenClaw MCP Server listening on port ${PORT} (SSE mode)`);
+  });
+} else {
+  // Stdio mode for local use (Claude Desktop, Cline, etc.)
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+}

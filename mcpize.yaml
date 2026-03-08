@@ -5,5 +5,5 @@ runtime: container
 build:
   dockerfile: Dockerfile
 startCommand:
-  type: stdio
+  type: sse
   command: node dist/index.js
