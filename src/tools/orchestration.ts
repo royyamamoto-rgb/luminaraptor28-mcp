@@ -8,7 +8,7 @@ export const orchestrationTools = [
   {
     name: 'run_pipeline',
     description:
-      'Execute a multi-agent pipeline by ID. Each step dispatches to an OpenClaw agent, with output passed to the next step.',
+      'Execute a multi-agent pipeline by ID. Each step dispatches to an LuminaRaptor28 agent, with output passed to the next step.',
     inputSchema: {
       type: 'object' as const,
       properties: {

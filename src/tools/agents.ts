@@ -8,7 +8,7 @@ export const agentTools = [
   {
     name: 'list_agents',
     description:
-      'List available AI agents registered with OpenClaw, including their capabilities and categories.',
+      'List available AI agents registered with LuminaRaptor28, including their capabilities and categories.',
     inputSchema: {
       type: 'object' as const,
       properties: {
@@ -23,7 +23,7 @@ export const agentTools = [
   {
     name: 'dispatch_agent',
     description:
-      'Send a task to a specific OpenClaw agent for execution. Returns the agent response and optional quality-gate score.',
+      'Send a task to a specific LuminaRaptor28 agent for execution. Returns the agent response and optional quality-gate score.',
     inputSchema: {
       type: 'object' as const,
       properties: {

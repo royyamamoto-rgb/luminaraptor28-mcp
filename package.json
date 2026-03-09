@@ -1,11 +1,11 @@
 {
-  "name": "@openclaw/mcp-server",
+  "name": "@luminaraptor28/mcp-server",
   "version": "1.0.0",
-  "description": "OpenClaw MCP Server — AI agent orchestration, multi-agent pipelines, RAG knowledge retrieval, and business automation tools",
+  "description": "LuminaRaptor28 MCP Server — AI agent orchestration, multi-agent pipelines, RAG knowledge retrieval, and business automation tools",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "openclaw-mcp": "dist/index.js"
+    "luminaraptor28-mcp": "dist/index.js"
   },
   "scripts": {
     "build": "tsc && chmod +x dist/index.js",
@@ -24,18 +24,18 @@
     "knowledge-base",
     "n8n",
     "workflow-automation",
-    "openclaw",
+    "luminaraptor28",
     "lumina28"
   ],
   "author": "Lumina28 <hello@lumina28.com>",
   "license": "MIT",
-  "homepage": "https://github.com/lumina28/openclaw-mcp",
+  "homepage": "https://github.com/lumina28/luminaraptor28-mcp",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lumina28/openclaw-mcp.git"
+    "url": "https://github.com/lumina28/luminaraptor28-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/lumina28/openclaw-mcp/issues"
+    "url": "https://github.com/lumina28/luminaraptor28-mcp/issues"
   },
   "engines": {
     "node": ">=18.0.0"

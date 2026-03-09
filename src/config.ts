@@ -1,25 +1,25 @@
 /**
- * OpenClaw MCP Server configuration.
+ * LuminaRaptor28 MCP Server configuration.
  *
  * All values are resolved from environment variables at runtime
  * so the package stays stateless and portable.
  */
 
-export interface OpenClawConfig {
-  /** Base URL of the OpenClaw API (no trailing slash). */
+export interface LuminaRaptor28Config {
+  /** Base URL of the LuminaRaptor28 API (no trailing slash). */
   apiUrl: string;
-  /** API key for authenticating requests to the OpenClaw API. */
+  /** API key for authenticating requests to the LuminaRaptor28 API. */
   apiKey: string;
 }
 
-export function getConfig(): OpenClawConfig {
-  const apiUrl = (process.env.OPENCLAW_API_URL || 'http://localhost:1878').replace(/\/+$/, '');
-  const apiKey = process.env.OPENCLAW_API_KEY || '';
+export function getConfig(): LuminaRaptor28Config {
+  const apiUrl = (process.env.LUMINARAPTOR28_API_URL || 'http://localhost:1878').replace(/\/+$/, '');
+  const apiKey = process.env.LUMINARAPTOR28_API_KEY || '';
   return { apiUrl, apiKey };
 }
 
 /**
- * Perform an authenticated request to the OpenClaw API.
+ * Perform an authenticated request to the LuminaRaptor28 API.
  *
  * Centralises auth header injection, base-URL resolution, content-type
  * handling, and error surfacing so individual tool files stay lean.
@@ -62,7 +62,7 @@ export async function apiRequest<T = unknown>(
   if (!response.ok) {
     const text = await response.text().catch(() => '');
     throw new Error(
-      `OpenClaw API error: ${method} ${path} returned HTTP ${response.status}${text ? ` — ${text}` : ''}`,
+      `LuminaRaptor28 API error: ${method} ${path} returned HTTP ${response.status}${text ? ` — ${text}` : ''}`,
     );
   }
 

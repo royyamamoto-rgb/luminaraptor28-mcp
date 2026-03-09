@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
 /**
- * OpenClaw MCP Server
+ * LuminaRaptor28 MCP Server
  *
  * Exposes AI agent orchestration, multi-agent pipelines, RAG knowledge
  * retrieval, and workflow automation as Model Context Protocol tools.
  *
- * https://github.com/lumina28/openclaw-mcp
+ * https://github.com/lumina28/luminaraptor28-mcp
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
@@ -48,7 +48,7 @@ for (const tool of workflowTools) toolHandlers[tool.name] = handleWorkflowTool;
 
 function createMcpServer(): Server {
   const srv = new Server(
-    { name: 'openclaw-mcp', version: '1.0.0' },
+    { name: 'luminaraptor28-mcp', version: '1.0.0' },
     { capabilities: { tools: {} } },
   );
 
@@ -101,7 +101,7 @@ if (PORT) {
 
     if (url.pathname === '/health') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ status: 'ok', server: 'openclaw-mcp', version: '1.0.0' }));
+      res.end(JSON.stringify({ status: 'ok', server: 'luminaraptor28-mcp', version: '1.0.0' }));
       return;
     }
 
@@ -115,7 +115,7 @@ if (PORT) {
   });
 
   httpServer.listen(Number(PORT), '0.0.0.0', () => {
-    console.error(`OpenClaw MCP Server listening on port ${PORT} (Streamable HTTP at /mcp)`);
+    console.error(`LuminaRaptor28 MCP Server listening on port ${PORT} (Streamable HTTP at /mcp)`);
   });
 } else {
   // Stdio mode for local use (Claude Desktop, Cline, etc.)

@@ -8,7 +8,7 @@ export const knowledgeTools = [
   {
     name: 'search_knowledge',
     description:
-      'Search the OpenClaw RAG knowledge base for solutions, patterns, and agent learnings.',
+      'Search the LuminaRaptor28 RAG knowledge base for solutions, patterns, and agent learnings.',
     inputSchema: {
       type: 'object' as const,
       properties: {
@@ -40,7 +40,7 @@ export const knowledgeTools = [
   {
     name: 'add_knowledge',
     description:
-      'Add a new document or problem-solution pair to the OpenClaw knowledge base.',
+      'Add a new document or problem-solution pair to the LuminaRaptor28 knowledge base.',
     inputSchema: {
       type: 'object' as const,
       properties: {

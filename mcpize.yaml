@@ -1,5 +1,5 @@
 version: 1
-name: openclaw
+name: luminaraptor28
 description: AI agent orchestration MCP server with multi-agent pipelines, fan-out dispatch, RAG knowledge retrieval, and n8n workflow automation. 10 tools for building AI-powered business systems.
 runtime: container
 build:

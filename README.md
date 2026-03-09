@@ -1,9 +1,9 @@
-# @openclaw/mcp-server
+# @luminaraptor28/mcp-server
 
 AI agent orchestration for the [Model Context Protocol](https://modelcontextprotocol.io).
 Built by [Lumina28](https://lumina28.com).
 
-OpenClaw is an AI agent orchestration platform that lets you register agents,
+LuminaRaptor28 is an AI agent orchestration platform that lets you register agents,
 compose multi-agent pipelines, query a RAG knowledge base, and trigger n8n
 workflow automations — all through a single MCP server that any compatible
 client (Claude Desktop, Cline, Cursor, etc.) can connect to.
@@ -15,21 +15,21 @@ client (Claude Desktop, Cline, Cursor, etc.) can connect to.
 ### npx (zero-install)
 
 ```bash
-npx @openclaw/mcp-server
+npx @luminaraptor28/mcp-server
 ```
 
 ### Global install
 
 ```bash
-npm install -g @openclaw/mcp-server
-openclaw-mcp
+npm install -g @luminaraptor28/mcp-server
+luminaraptor28-mcp
 ```
 
 ### From source
 
 ```bash
-git clone https://github.com/lumina28/openclaw-mcp.git
-cd openclaw-mcp
+git clone https://github.com/lumina28/luminaraptor28-mcp.git
+cd luminaraptor28-mcp
 npm install
 npm run build
 npm start
@@ -39,13 +39,13 @@ npm start
 
 ## Configuration
 
-The server connects to an OpenClaw API instance. Configure it with environment
+The server connects to a LuminaRaptor28 API instance. Configure it with environment
 variables:
 
 | Variable | Default | Description |
 |---|---|---|
-| `OPENCLAW_API_URL` | `http://localhost:1878` | Base URL of the OpenClaw API |
-| `OPENCLAW_API_KEY` | *(empty)* | API key for authentication |
+| `LUMINARAPTOR28_API_URL` | `http://localhost:1878` | Base URL of the LuminaRaptor28 API |
+| `LUMINARAPTOR28_API_KEY` | *(empty)* | API key for authentication |
 
 ### Claude Desktop
 
@@ -54,12 +54,12 @@ Add the following to your `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "openclaw": {
+    "luminaraptor28": {
       "command": "npx",
-      "args": ["-y", "@openclaw/mcp-server"],
+      "args": ["-y", "@luminaraptor28/mcp-server"],
       "env": {
-        "OPENCLAW_API_URL": "http://localhost:1878",
-        "OPENCLAW_API_KEY": "your-api-key"
+        "LUMINARAPTOR28_API_URL": "http://localhost:1878",
+        "LUMINARAPTOR28_API_KEY": "your-api-key"
       }
     }
   }
@@ -73,12 +73,12 @@ Add to your MCP settings:
 ```json
 {
   "mcpServers": {
-    "openclaw": {
+    "luminaraptor28": {
       "command": "npx",
-      "args": ["-y", "@openclaw/mcp-server"],
+      "args": ["-y", "@luminaraptor28/mcp-server"],
       "env": {
-        "OPENCLAW_API_URL": "http://localhost:1878",
-        "OPENCLAW_API_KEY": "your-api-key"
+        "LUMINARAPTOR28_API_URL": "http://localhost:1878",
+        "LUMINARAPTOR28_API_KEY": "your-api-key"
       }
     }
   }
@@ -155,10 +155,10 @@ and data { "branch": "main", "environment": "staging" }
 
 ## API Compatibility
 
-This MCP server is a thin client that delegates to the OpenClaw REST API. It
-requires a running OpenClaw instance. The default API endpoint is
+This MCP server is a thin client that delegates to the LuminaRaptor28 REST API. It
+requires a running LuminaRaptor28 instance. The default API endpoint is
 `http://localhost:1878`. See the
-[OpenClaw documentation](https://github.com/lumina28/openclaw) for setup
+[LuminaRaptor28 documentation](https://github.com/lumina28/luminaraptor28) for setup
 instructions.
 
 ### Endpoints Used
