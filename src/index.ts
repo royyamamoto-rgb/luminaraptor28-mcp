@@ -49,11 +49,26 @@ for (const tool of workflowTools) toolHandlers[tool.name] = handleWorkflowTool;
 const rateLimits = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = 60; // requests per minute
 const RATE_WINDOW = 60_000; // 1 minute
+const MAX_RATE_ENTRIES = 10_000;
+const MAX_BODY_BYTES = 1_048_576; // 1 MB
+
+// Periodic cleanup of stale rate limit entries (every 60s)
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of rateLimits) {
+    if (now > entry.resetAt) rateLimits.delete(ip);
+  }
+}, 60_000).unref();
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
   const entry = rateLimits.get(ip);
   if (!entry || now > entry.resetAt) {
+    // Evict oldest if at capacity
+    if (rateLimits.size >= MAX_RATE_ENTRIES && !rateLimits.has(ip)) {
+      const firstKey = rateLimits.keys().next().value;
+      if (firstKey) rateLimits.delete(firstKey);
+    }
     rateLimits.set(ip, { count: 1, resetAt: now + RATE_WINDOW });
     return true;
   }
@@ -146,6 +161,14 @@ if (PORT) {
     }
 
     if (url.pathname === '/mcp') {
+      // Reject oversized request bodies
+      const contentLength = parseInt(req.headers['content-length'] || '0', 10);
+      if (contentLength > MAX_BODY_BYTES) {
+        res.writeHead(413, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Request body too large' }));
+        return;
+      }
+
       // Bearer token auth — only enforced when SERVER_TOKEN is configured
       if (SERVER_TOKEN) {
         const authHeader = req.headers['authorization'];

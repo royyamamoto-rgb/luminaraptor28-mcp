@@ -47,9 +47,48 @@ export function validateId(value: unknown, name: string): string {
 }
 
 export function sanitizeText(text: string): string {
-  // Strip common prompt injection patterns
+  // Strip common prompt injection patterns (defense in depth — not a sole defense)
   return text
     .replace(/\bignore\s+(all\s+)?previous\s+instructions?\b/gi, '[FILTERED]')
     .replace(/\bsystem\s*prompt\b/gi, '[FILTERED]')
     .replace(/\b(reveal|show|output|print)\s+(your|the)\s+(system|initial)\s+(prompt|instructions?)\b/gi, '[FILTERED]');
 }
+
+const MAX_CONTEXT_KEYS = 20;
+const MAX_CONTEXT_SIZE_BYTES = 10_240; // 10 KB
+
+export function validateContext(value: unknown, name: string): Record<string, unknown> {
+  if (value === undefined || value === null) return {};
+  if (typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`${name} must be a plain object`);
+  }
+  const obj = value as Record<string, unknown>;
+  const keys = Object.keys(obj);
+  if (keys.length > MAX_CONTEXT_KEYS) {
+    throw new Error(`${name} exceeds maximum of ${MAX_CONTEXT_KEYS} keys`);
+  }
+  const serialized = JSON.stringify(obj);
+  if (serialized.length > MAX_CONTEXT_SIZE_BYTES) {
+    throw new Error(`${name} exceeds maximum size of ${MAX_CONTEXT_SIZE_BYTES} bytes`);
+  }
+  // Sanitize string values within context
+  for (const key of keys) {
+    if (typeof obj[key] === 'string') {
+      obj[key] = sanitizeText(obj[key] as string);
+    }
+  }
+  return obj;
+}
+
+const VALID_AGGREGATIONS = new Set(['merge', 'best', 'all']);
+
+export function validateEnum(value: unknown, name: string, allowed: Set<string>, fallback: string): string {
+  if (value === undefined || value === null) return fallback;
+  const str = String(value);
+  if (!allowed.has(str)) {
+    throw new Error(`${name} must be one of: ${[...allowed].join(', ')}`);
+  }
+  return str;
+}
+
+export { VALID_AGGREGATIONS };

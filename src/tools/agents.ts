@@ -1,5 +1,5 @@
 import { apiRequest } from '../config.js';
-import { validateId, validateString, validateStringOptional, sanitizeText } from '../validation.js';
+import { validateId, validateString, validateStringOptional, sanitizeText, validateContext } from '../validation.js';
 
 // ---------------------------------------------------------------------------
 // Tool definitions
@@ -87,12 +87,13 @@ export async function handleAgentTool(
       const agent_id = validateId(args.agent_id, 'agent_id');
       const task = sanitizeText(validateString(args.task, 'task', 5000));
       const action = validateStringOptional(args.action, 'action', 100);
+      const context = validateContext(args.context, 'context');
       return apiRequest('/api/v1/agents/dispatch', {
         method: 'POST',
         body: {
           agent_id,
           task,
-          context: args.context || {},
+          context,
           action: action || 'execute',
         },
       });

@@ -1,5 +1,5 @@
 import { apiRequest } from '../config.js';
-import { validateId, validateString, validateArray, sanitizeText } from '../validation.js';
+import { validateId, validateString, validateArray, sanitizeText, validateContext, validateEnum, VALID_AGGREGATIONS } from '../validation.js';
 
 // ---------------------------------------------------------------------------
 // Tool definitions
@@ -114,12 +114,13 @@ export async function handleOrchestrationTool(
     case 'run_pipeline': {
       const pipeline_id = validateId(args.pipeline_id, 'pipeline_id');
       const task = sanitizeText(validateString(args.task, 'task', 5000));
+      const context = validateContext(args.context, 'context');
       return apiRequest('/api/v1/pipelines/run', {
         method: 'POST',
         body: {
           pipeline_id,
           task,
-          context: args.context || {},
+          context,
         },
       });
     }
@@ -128,13 +129,15 @@ export async function handleOrchestrationTool(
       const agentIds = validateArray(args.agent_ids, 'agent_ids', 10) as string[];
       for (const id of agentIds) validateId(id, 'agent_ids[]');
       const task = sanitizeText(validateString(args.task, 'task', 5000));
+      const context = validateContext(args.context, 'context');
+      const aggregation = validateEnum(args.aggregation, 'aggregation', VALID_AGGREGATIONS, 'all');
       return apiRequest('/api/v1/orchestration/fan-out', {
         method: 'POST',
         body: {
           agent_ids: agentIds,
           task,
-          context: args.context || {},
-          aggregation: args.aggregation || 'all',
+          context,
+          aggregation,
         },
       });
     }
